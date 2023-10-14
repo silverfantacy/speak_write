@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "appwrite": "^10.2.0",
-    "openai": "^3.2.1",
+    "appwrite": "^13.0.0",
+    "openai": "^4.12.1",
     "vue": "^3.2.47"
   },
   "devDependencies": {
