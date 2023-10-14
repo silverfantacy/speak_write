@@ -58,6 +58,14 @@ const routes = [
     },
   },
   {
+    path: '/asr',
+    name: 'ASR',
+    component: () => import(/* webpackChunkName: "asr" */ './views/ASR.vue'),
+    meta: {
+      title: '語音AI對話',
+    },
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
@@ -69,6 +77,14 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // title
+  if (to.meta.title) {
+    document.title = to.meta.title + ' | SpeakWrite';
+  } else {
+    document.title = 'SpeakWrite';
+  }
+
+  // auth
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     console.log("beforeEach: ", store.getters.getAccount);
     if (store.getters.getAccount) {

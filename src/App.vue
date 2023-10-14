@@ -15,7 +15,7 @@ watch(account, (newValue, oldValue) => {
   if (newValue === null) {
     router.replace('/')
   } else {
-    let redirect = router.currentRoute.value.query.redirect || { name: 'Todos' };
+    let redirect = router.currentRoute.value.query.redirect || "/";
     router.replace(redirect);
   }
 })
