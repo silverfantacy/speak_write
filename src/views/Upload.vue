@@ -8,7 +8,7 @@
     <p class="mb-5 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">目前支援：mp3, mp4, mpeg, mpga, m4a, wav, or webm，檔案最大24MB。</p>
 
     <label for="audio-upload"
-      class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+      class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
       <div class="flex flex-col items-center justify-center pt-5 pb-6">
         <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="#0B3D91" viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">

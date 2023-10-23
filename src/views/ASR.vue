@@ -54,7 +54,7 @@
         </svg>
         停止語音辨識
       </button>
-      <button v-else @click="startRecognition"
+      <button v-else @click="startRecognition" :disabled="!canRecognition"
         class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
         <svg class="w-5 h-5 mr-2 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
           fill="currentColor" viewBox="0 0 16 19">
@@ -81,6 +81,8 @@ export default {
     const states = reactive({
       messages: []
     })
+    // canRecognition 預設 false
+    const canRecognition = ref(true)
 
     // 監聽對話紀錄，當有新的對話紀錄時，滾動到最底部
     watch(states.messages, (newValue, oldValue) => {
@@ -90,6 +92,42 @@ export default {
     })
 
     // AI 對話
+    async function AICorrection(text) {
+      console.log('AICorrection 開始')
+
+      const formatMessages = [
+        { role: "system", content: '#zh-tw Add punctuation to the content of speech recognition and correct any inaccuracies in the recognized words, while preserving the original pronunciation as much as possible.' },
+        { role: "user", content: text },
+      ];
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: formatMessages,
+          temperature: 0.9,
+          // max_tokens: 256 * 1,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0.6,
+        })
+
+      };
+      // 使用 OpenAI API 進行文字生成
+      await fetch('https://api.openai.com/v1/chat/completions', options)
+        .then(res => res.json())
+        .then(body => {
+          console.log('body', body)
+          if (body.error) {
+            throw body.error;
+          }
+          recognizedText.value = body.choices[0].message.content.trim();
+        });
+    }
     async function AITalk() {
       console.log('AITalk 開始')
 
@@ -125,7 +163,7 @@ export default {
       };
       console.log('options', options)
       // 使用 OpenAI API 進行文字生成
-      return fetch('https://api.openai.com/v1/chat/completions', options)
+      await fetch('https://api.openai.com/v1/chat/completions', options)
         .then(res => res.json())
         .then(body => {
           console.log('body', body)
@@ -143,23 +181,27 @@ export default {
 
 
     // 語音辨識
-    const recognition = webkitSpeechRecognition ? new webkitSpeechRecognition() : null;
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = SpeechRecognition ? new SpeechRecognition() : null;
     const recognitionStatus = ref('識別未開始');
     const recognizedText = ref('');
 
     const messagesContainer = ref(null);
 
     if (recognition) {
+      recognition.lang = window.navigator.language || 'zh-TW';
       recognition.continuous = true;
       recognition.interimResults = true;
 
       recognition.onstart = () => {
         recognitionStatus.value = '識別已開始';
+        canRecognition.value = false;
       };
 
-      recognition.onend = () => {
+      recognition.onend = async () => {
         recognitionStatus.value = '識別已結束';
 
+        await AICorrection(recognizedText.value)
         // 語音辨識結束後，將辨識結果加入對話紀錄
         states.messages.push({
           role: "user",
@@ -167,15 +209,26 @@ export default {
           created: proxy.$filters.datetime()
         })
 
+        await AITalk();
+        // 取得最後一筆對話紀錄states.messages
+        const lastMessage = states.messages[states.messages.length - 1].content;
+        await getRecognizedText(lastMessage)
+
         // 清空辨識結果
         recognizedText.value = '';
-
-        AITalk();
       };
 
       recognition.onresult = (event) => {
-        const recognized = event.results[event.results.length - 1][0].transcript;
-        recognizedText.value = recognized;
+        let recognized = [];
+        for (let index = 0; index < event.results.length; index++) {
+          const element = event.results[index];
+          if (element.isFinal) {
+            recognized.push(element[0].transcript);
+          }
+        }
+        recognized.join(',');
+        // const recognized = event.results[event.results.length - 1][0].transcript;
+        recognizedText.value = recognized + '.';
       };
     } else {
       recognitionStatus.value = '不支援識別';
@@ -192,6 +245,23 @@ export default {
         recognition.stop();
       }
     };
+
+
+    // 讀出openai的語音辨識結果
+    const getRecognizedText = (text) => {
+      var ssu = new window.SpeechSynthesisUtterance(text);
+      ssu.lang = 'zh-TW';
+      // ssu.volume = 1;
+      ssu.rate = 1.2;
+      // ssu.pitch = 1;
+      // ssu.voiceURI = '美佳';
+
+      window.speechSynthesis.speak(ssu);
+      ssu.onend = (e) => {
+        canRecognition.value = true;
+      }
+    };
+
 
     const scrollToBottom = () => {
       console.log('scrollToBottom')
@@ -212,6 +282,7 @@ export default {
       stopRecognition,
       recognitionStatus,
       recognizedText,
+      canRecognition,
 
 
       // messages,
