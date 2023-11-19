@@ -93,7 +93,6 @@ export default {
 
     // AI 對話
     async function AICorrection(text) {
-      console.log('AICorrection 開始')
 
       const formatMessages = [
         { role: "system", content: '#zh-tw Add punctuation to the content of speech recognition and correct any inaccuracies in the recognized words, while preserving the original pronunciation as much as possible.' },
@@ -121,7 +120,6 @@ export default {
       await fetch('https://api.openai.com/v1/chat/completions', options)
         .then(res => res.json())
         .then(body => {
-          console.log('body', body)
           if (body.error) {
             throw body.error;
           }
@@ -129,7 +127,6 @@ export default {
         });
     }
     async function AITalk() {
-      console.log('AITalk 開始')
 
       const previousMessages = JSON.parse(JSON.stringify(states.messages));
 
@@ -161,12 +158,10 @@ export default {
         })
 
       };
-      console.log('options', options)
       // 使用 OpenAI API 進行文字生成
       await fetch('https://api.openai.com/v1/chat/completions', options)
         .then(res => res.json())
         .then(body => {
-          console.log('body', body)
           if (body.error) {
             throw body.error;
           }
@@ -201,6 +196,8 @@ export default {
       recognition.onend = async () => {
         recognitionStatus.value = '識別已結束';
 
+        // 語音辨識
+        if (!recognizedText.value) return;
         await AICorrection(recognizedText.value)
         // 語音辨識結束後，將辨識結果加入對話紀錄
         states.messages.push({
@@ -264,7 +261,6 @@ export default {
 
 
     const scrollToBottom = () => {
-      console.log('scrollToBottom')
       const container = messagesContainer.value;
       if (container) {
         container.scrollTo({
