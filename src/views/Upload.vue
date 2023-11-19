@@ -8,38 +8,48 @@
         <p class="mb-5 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">目前支援：mp3, mp4, mpeg, mpga, m4a, wav,
             or webm，檔案最大24MB。</p>
 
-        <label for="audio-upload"
-            class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
-            <div v-if="canUpload" class="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="#0B3D91"
-                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                </svg>
-                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span>
-                    or
-                    drag and drop</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">MP3 or WAV files (MAX. 24MB)</p>
-            </div>
+        <template v-if="apiKey">
+            <label for="audio-upload"
+                class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                <div v-if="canUpload" class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg aria-hidden="true" class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="#0B3D91"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                        </path>
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to
+                            upload</span>
+                        or
+                        drag and drop</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">MP3 or WAV files (MAX. 24MB)</p>
+                </div>
 
-            <div v-else
-                class="flex items-center justify-center w-full h-full border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                <div
-                    class="px-3 py-1 text-sm font-medium leading-none text-center text-blue-800 bg-blue-200 rounded-full animate-pulse dark:bg-blue-900 dark:text-blue-200">
-                    處理中...</div>
-            </div>
+                <div v-else
+                    class="flex items-center justify-center w-full h-full border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+                    <div
+                        class="px-3 py-1 text-sm font-medium leading-none text-center text-blue-800 bg-blue-200 rounded-full animate-pulse dark:bg-blue-900 dark:text-blue-200">
+                        處理中...</div>
+                </div>
 
 
-            <input id="audio-upload" type="file" class="hidden" accept=".mp3,.mp4,.mpeg,.mpga,.m4a,.wav,.webm"
-                ref="fileInput" @change="uploadFile" :disabled="!canUpload" />
-        </label>
+                <input id="audio-upload" type="file" class="hidden" accept=".mp3,.mp4,.mpeg,.mpga,.m4a,.wav,.webm"
+                    ref="fileInput" @change="uploadFile" :disabled="!canUpload" />
+            </label>
+        </template>
+        <template v-else>
+            <RouterLink :to="{ name: 'Personal' }" tag="button"
+                class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                請先輸入 OpenAI API Key
+            </RouterLink>
+        </template>
 
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-const apiKey = import.meta.env.VITE_VUE_APP_OPENAI_API_KEY;
+const apiKey = import.meta.env.VITE_VUE_APP_OPENAI_API_KEY || localStorage.getItem('openai_key');
 
 const fileInput = ref(null)
 const canUpload = ref(true)
@@ -49,6 +59,19 @@ const uploadFile = async () => {
     const file = fileInput.value.files[0]
     // await cropAndSplitAudio(file)
     // return
+
+
+    const fileSize = file.size; // 檔案大小，單位為位元組 (bytes)
+    const maxSize = 24 * 1024 * 1024; // 24MB轉換成位元組
+
+    if (fileSize > maxSize) {
+        // 這裡可以額外處理檔案大小超過限制的情況，例如清除選擇的檔案
+        alert('檔案大小超過限制，請重新選擇檔案')
+        fileInput.value = ''; // 清空檔案選擇，讓使用者重新選擇
+        canUpload.value = true
+        return
+    }
+
 
     const formData = new FormData()
     formData.append('file', file)
@@ -82,6 +105,7 @@ const transcribeAudio = async (audioFile, response_format = 'json') => {
     });
 
     if (!response.ok) {
+        alert('發生錯誤，請確認您的API密鑰是否正確')
         throw new Error('Failed to transcribe audio file');
     }
 
@@ -173,6 +197,7 @@ function cropAndSplitAudio(inputFile, outputFilePrefix, startTime, endTime, maxS
     return new Promise((resolve, reject) => {
         const fileExtension = inputFile.name.split(".").pop().toLowerCase();
         if (!["mp3", "mp4", "mpeg", "mpga", "m4a", "wav", "webm"].includes(fileExtension)) {
+            alert("檔案格式不支援");
             reject(new Error("Unsupported file format"));
             return;
         }
