@@ -2,8 +2,8 @@
 import { computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import { useAuthStore, useGlobalStore } from "@/stores";
-import Navbar from "@/components/Navbar.vue";
-import Loading from '@/components/Loading.vue';
+import Navbar from "@/components/layouts/Navbar.vue";
+import Loading from '@/components/layouts/Loading.vue';
 
 const globalStore = useGlobalStore();
 </script>

@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from '@/router'
 import pinia from '@/stores'
-import './tailwind.css'
+import '@/assets/tailwind.css'
 import { initFlowbite } from 'flowbite'
 import Swal from "sweetalert2";
 import moment from "moment";

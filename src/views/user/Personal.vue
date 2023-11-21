@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores";
 import { storeToRefs } from 'pinia';
 import { useLogto } from '@logto/vue';
 import cat from '@/assets/cat.png'
-import authApi from '@/api/auth.js'
 
 const { signIn, signOut, isAuthenticated } = useLogto();
 const onClickSignIn = () => signIn(window.location.origin + '/callback');
@@ -75,3 +74,4 @@ watch(openai_key, (val) => {
     </div>
 </template>
 
+@/apis/auth.js

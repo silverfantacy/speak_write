@@ -3,11 +3,19 @@ import { storeToRefs } from 'pinia';
 import { useGlobalStore, useAuthStore } from "@/stores";
 import { useLogto } from "@logto/vue";
 import routes from "./routes.js";
+import tools from "./tools.js";
 
 const router = createRouter({
     history: createWebHistory(),
     // history: createWebHashHistory(),
-    routes,
+    routes: [
+        ...routes,
+        ...tools,
+        {
+            path: "/:catchAll(.*)",
+            redirect: "/",
+        },
+    ],
     scrollBehavior() {
         return {
             el: '#app',
