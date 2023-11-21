@@ -7,9 +7,9 @@ import cat from '@/assets/cat.png'
 import authApi from '@/api/auth.js'
 
 const { signIn, signOut, isAuthenticated } = useLogto();
-const onClickSignIn = () => signIn(import.meta.env.VITE_APP_URL + '/callback');
+const onClickSignIn = () => signIn(window.location.origin + '/callback');
 
-const onClickSignOut = () => signOut(import.meta.env.VITE_APP_URL);
+const onClickSignOut = () => signOut(window.location.origin);
 
 const authStore = useAuthStore()
 

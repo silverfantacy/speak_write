@@ -27,11 +27,11 @@ export const useAuthStore = defineStore({
         },
 
         signIn() {
-            useLogto().signIn(`${import.meta.env.VITE_APP_URL}/callback`);
+            useLogto().signIn(`${window.location.origin}/callback`);
         },
 
         signOut() {
-            useLogto().signOut(import.meta.env.VITE_APP_URL);
+            useLogto().signOut(window.location.origin);
         }
     }
 });
