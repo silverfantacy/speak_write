@@ -4,7 +4,7 @@ const router = useRouter()
 import { useHandleSignInCallback } from '@logto/vue';
 const { isLoading } = useHandleSignInCallback(() => {
     // Navigate to root path when finished
-    router.push({ path: '/' });
+    router.push({ name: 'Personal' });
 });
 </script>
 <template>
