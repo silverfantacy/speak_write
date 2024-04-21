@@ -81,6 +81,7 @@
 
 <script setup>
 import { reactive, ref, getCurrentInstance, watch } from 'vue'
+const openaiEndPoint = import.meta.env.VITE_VUE_APP_OPENAI_END_POINT || 'https://api.openai.com';
 const apiKey = import.meta.env.VITE_VUE_APP_OPENAI_API_KEY || localStorage.getItem('openai_key');
 
 const proxy = getCurrentInstance().proxy
@@ -126,7 +127,7 @@ async function AICorrection(text) {
 
     };
     // 使用 OpenAI API 進行文字生成
-    await fetch('https://api.openai.com/v1/chat/completions', options)
+    await fetch(`${openaiEndPoint}/v1/chat/completions`, options)
         .then(res => res.json())
         .then(body => {
             if (body.error) {
@@ -168,7 +169,7 @@ async function AITalk() {
 
     };
     // 使用 OpenAI API 進行文字生成
-    await fetch('https://api.openai.com/v1/chat/completions', options)
+    await fetch(`${openaiEndPoint}/v1/chat/completions`, options)
         .then(res => res.json())
         .then(body => {
             if (body.error) {

@@ -49,6 +49,7 @@
 
 <script setup>
 import { ref } from 'vue'
+const openaiEndPoint = import.meta.env.VITE_VUE_APP_OPENAI_END_POINT || 'https://api.openai.com';
 const apiKey = import.meta.env.VITE_VUE_APP_OPENAI_API_KEY || localStorage.getItem('openai_key');
 
 const fileInput = ref(null)
@@ -89,7 +90,7 @@ const uploadFile = async () => {
 }
 
 const transcribeAudio = async (audioFile, response_format = 'json') => {
-    const apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
+    const apiUrl = `${openaiEndPoint}/v1/audio/transcriptions`;
 
     const formData = new FormData();
     formData.append('file', audioFile);
@@ -173,7 +174,7 @@ async function summarize(requestString) {
     };
 
     // 使用 OpenAI API 進行文字生成
-    return fetch('https://api.openai.com/v1/chat/completions', options)
+    return fetch(`${openaiEndPoint}/v1/chat/completions`, options)
         .then(res => res.json())
         .then(body => {
             if (body.error) {
