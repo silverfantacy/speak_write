@@ -1,50 +1,20 @@
 <script setup>
 import { computed, watch, onMounted } from 'vue'
-import { useStore } from 'vuex'
 import { useRouter } from 'vue-router';
-import Navbar from "./components/Navbar.vue";
+import { useAuthStore, useGlobalStore } from "@/stores";
+import Navbar from "@/components/layouts/Navbar.vue";
+import Loading from '@/components/layouts/Loading.vue';
 
-const store = useStore()
-
-const account = computed(() => store.getters.getAccount)
-const error = computed(() => store.getters.getError)
-const router = useRouter();
-
-watch(account, (newValue, oldValue) => {
-  console.log("In Watch getAccount in App.vue")
-  if (newValue === null) {
-    router.replace('/')
-  } else {
-    let redirect = router.currentRoute.value.query.redirect || "/";
-    router.replace(redirect);
-  }
-})
-
-onMounted(() => {
-  if (!account.value) {
-    store.dispatch('fetchAccount')
-  }
-})
+const globalStore = useGlobalStore();
 </script>
 
 <template>
-  <!-- <transition name="fade"> -->
-  <!-- <Alert v-if="error.show" :message="error.message" :color="error.color" /> -->
+    <Loading />
 
-  <router-view></router-view>
-  <!-- </transition> -->
-  <Navbar />
+    <router-view></router-view>
+
+    <Navbar />
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  background-color: #fff;
-  opacity: 0;
-}
 </style>
